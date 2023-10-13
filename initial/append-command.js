@@ -12,9 +12,6 @@ const { SlashCommandBuilder } = require("@discordjs/builders");
 const client = new Client({ intents: [Guilds, GuildMessages] });
 const { DISCORD_TOKEN, DISCORD_GUILD } = process.env;
 
-console.log(`DISCORD_TOKEN: ${DISCORD_TOKEN}`);
-console.log(`DISCORD_GUILD: ${DISCORD_GUILD}`);
-
 // Discord BOTのコマンドを定義
 const commands = [
   new SlashCommandBuilder()
