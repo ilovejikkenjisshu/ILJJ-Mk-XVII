@@ -53,13 +53,13 @@ jobs:
         uses: montudor/action-zip@v1.0.0
         with:
           args: zip -qq -r iljj-gssc-src.zip src
-      - name: Upload gssc source to cloud storage
-        uses: 'google-github-actions/upload-cloud-storage@v1'
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
         with:
-          destination: ${{ vars.BUCKET_NAME }}
-          path: 'iljj-gssc-src.zip'
-          parent: false
-          process_gcloudignore: false
+          version: '>= 379.0.0'
+      - name: Upload gssc source to cloud storage
+        run: |-
+          gsutil cp iljj-gssc-src.zip gs://${{ vars.BUCKET_NAME }}/iljj-gssc-src.zip
       - name: Terraform Init
         run: terraform init
       - name: Validate Terraform
