@@ -41,7 +41,6 @@ jobs:
           create_credentials_file: true
           workload_identity_provider: 'projects/${{ vars.PROJECT_ID }}/locations/global/workloadIdentityPools/${{ vars.POOL_ID }}/providers/${{ vars.PROVIDER_ID }}'
           service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
-          token_format: 'access_token'
       - uses: hashicorp/setup-terraform@v2
       - name: Set terraform valiables
         run: |-
