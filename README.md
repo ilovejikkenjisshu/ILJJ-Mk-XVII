@@ -45,8 +45,9 @@ Using [https://discord.com/developers/applications]
 
 ```bash
 REGION=asia-northeast1
+BUCKET_NAME=your-bucket-name
 gcloud init
-gsutil mb -b on -c standard -l ${REGION} gs://gssc
+gsutil mb -b on -c standard -l ${REGION} gs://${BUCKET_NAME}
 gcloud iam service-accounts create terraform --display-name="terraform"
 ```
 
