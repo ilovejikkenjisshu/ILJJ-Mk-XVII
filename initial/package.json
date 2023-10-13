@@ -1,0 +1,17 @@
+{
+  "name": "iljj-gssc-init",
+  "version": "1.0.0",
+  "description": "",
+  "main": "append-command.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hansyo",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/builders": "^1.6.5",
+    "@discordjs/rest": "^2.0.1",
+    "discord-api-types": "^0.37.60",
+    "discord.js": "^14.13.0"
+  }
+}

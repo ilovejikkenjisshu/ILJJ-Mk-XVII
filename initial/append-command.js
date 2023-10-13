@@ -1,13 +1,19 @@
-const { Client, Intents } = require("discord.js");
+const {
+  Client,
+  Routes,
+  REST,
+  GatewayIntentBits: {
+    Guilds,
+    GuildMessages,
+  }
+} = require("discord.js");
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { REST } = require("@discordjs/rest");
-const { Routes } = require("discord-api-types");
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Guilds, GuildMessages] });
 const { DISCORD_TOKEN, DISCORD_GUILD } = process.env;
 
 // Discord BOTのコマンドを定義
-export const commands = [
+const commands = [
   new SlashCommandBuilder()
     .setName("gssc")
     .setDescription("Game Server Slash Commands")
@@ -15,21 +21,21 @@ export const commands = [
       option
         .setName("command")
         .setDescription("The command to execute")
-        .setRequired(true),
+        .setRequired(true)
         .addChoices(
-          {name: "start", value: "start"},
-          {name: "stop", value: "stop"},
-          {name: "restart", value: "restart"},
-          {name: "status", value: "status"},
-          {name: "list", value: "list"},
-        )
-    ),
+          { name: "start", value: "start" },
+          { name: "stop", value: "stop" },
+          { name: "restart", value: "restart" },
+          { name: "status", value: "status" },
+          { name: "list", value: "list" },
+        ),
+    )
     .addStringOption((option) =>
       option
         .setName("game")
         .setDescription("The game server name")
         .setRequired(false),
-    )
+    ),
 ].map((command) => {
   return command.toJSON();
 });
