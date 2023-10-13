@@ -28,12 +28,11 @@ variable "client_public_key" {
 }
 
 resource "google_cloudfunctions_function" "gssc_discord_bot" {
-  name        = "Game Server Slash Command Bot"
+  name        = "GSSC_Bot"
   runtime     = "nodejs16"
   description = "Discord BOT for Game Server"
-  source_archive_bucket = bucket_name
-
-  entry_point = "main" # Discord BOTのメインファイルのエントリポイント
+  source_archive_bucket = var.bucket_name
+  source_archive_object = "iljj-gssc-src.zip"
 
   trigger_http = true
 
@@ -46,3 +45,6 @@ resource "google_cloudfunctions_function" "gssc_discord_bot" {
   }
 }
 
+output "function_uri" {
+  value = google_cloudfunctions_function.gssc_discord_bot.service_config[0].uri
+}
