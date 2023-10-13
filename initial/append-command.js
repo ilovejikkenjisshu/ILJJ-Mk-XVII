@@ -59,7 +59,7 @@ client.once("ready", () => {
     } catch (error) {
       console.error(error);
     }
-  })();
+  })().then(() => { client.destroy(); });
 });
 
 // Discord BOTをログイン
