@@ -46,5 +46,5 @@ resource "google_cloudfunctions_function" "gssc_discord_bot" {
 }
 
 output "function_uri" {
-  value = google_cloudfunctions_function.gssc_discord_bot.service_config[0].uri
+  value = google_cloudfunctions_function.gssc_discord_bot.https_trigger_url
 }
