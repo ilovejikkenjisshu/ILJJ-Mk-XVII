@@ -59,6 +59,7 @@ jobs:
           destination: ${{ vars.BUCKET_NAME }}
           path: 'iljj-gssc-src.zip'
           parent: false
+          process_gcloudignore: false
       - name: Terraform Init
         run: terraform init
       - name: Validate Terraform
