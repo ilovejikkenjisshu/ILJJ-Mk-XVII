@@ -1,0 +1,21 @@
+{
+  "name": "iljj_mk-xvii",
+  "version": "1.0.0",
+  "description": "## product discription",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@discordjs/builders": "^1.6.5",
+    "@discordjs/rest": "^2.0.1",
+    "@google-cloud/functions-framework": "^3.3.0",
+    "@google-cloud/storage": "^7.3.0",
+    "discord-api-types": "^0.37.60",
+    "discord-interactions": "^3.4.0",
+    "discord.js": "^14.13.0",
+    "googleapis": "^127.0.0"
+  }
+}
