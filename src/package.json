@@ -1,0 +1,17 @@
+{
+  "name": "iljj-gssc-src",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hansyo",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "@google-cloud/storage": "^7.3.0",
+    "discord-interactions": "^3.4.0",
+    "googleapis": "^127.0.0"
+  }
+}
