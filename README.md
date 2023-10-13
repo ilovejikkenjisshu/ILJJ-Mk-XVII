@@ -60,6 +60,7 @@ gcloud iam service-accounts create terraform --display-name="terraform"
 | `POOL_ID`        | GCP Pool ID        |
 | `PROVIDER_ID`    | GCP Provider ID    |
 | `REGION`         | GCP Region         |
+| `BUCKET_NAME`    | GCP Bucket Name    |
 | `DISCORD_BOT_ID` | Discord Bot ID     |
 
 #### Secrets
