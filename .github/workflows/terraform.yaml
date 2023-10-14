@@ -56,9 +56,7 @@ jobs:
           workload_identity_provider: 'projects/${{ vars.PROJECT_ID }}/locations/global/workloadIdentityPools/${{ vars.POOL_ID }}/providers/${{ vars.PROVIDER_ID }}'
           service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
       - name: Zip gssc source
-        uses: montudor/action-zip@v1.0.0
-        with:
-          args: zip -qq -r iljj-gssc-src.zip src
+        run: zip -r iljj-gssc-src.zip src
       - name: Upload gssc source to cloud storage
         uses: 'google-github-actions/upload-cloud-storage@v1'
         with:
