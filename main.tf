@@ -5,6 +5,10 @@ terraform {
       version = "~> 3.61.0"
     }
   }
+  backend "gcs" {
+    bucket = var.bucket_name
+    prefix = "terraform/state"
+   }
 }
 
 variable "bucket_name" {
