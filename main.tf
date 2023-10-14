@@ -2,7 +2,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 3.61.0"
+      version = "~> 4.34.0"
     }
   }
   backend "gcs" {
@@ -51,14 +51,14 @@ resource "google_storage_bucket_object" "packages" {
 }
 
 resource "google_cloudfunctions2_function" "gssc_discord_bot" {
-  name                  = "GSSC_Bot"
-  location              = var.region
-  description           = "Discord BOT for Game Server"
+  name        = "GSSC_Bot"
+  location    = var.region
+  description = "Discord BOT for Game Server"
 
   build_config {
     runtime     = "nodejs16"
     entry_point = "discordRequest"
-    source      = {
+    source {
       storage_source {
         bucket = var.bucket_name
         object = google_storage_bucket_object.packages.name
@@ -67,9 +67,9 @@ resource "google_cloudfunctions2_function" "gssc_discord_bot" {
   }
 
   service_config {
-    max_instance_count  = 1
-    available_memory    = "128M"
-    timeout             = "60s"
+    max_instance_count = 1
+    available_memory   = "128M"
+    timeout            = "60s"
   }
 
   environment_variables = {
