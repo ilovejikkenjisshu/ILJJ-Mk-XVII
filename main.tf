@@ -23,8 +23,13 @@ variable "client_public_key" {
   type = string
 }
 
+variable "credentials_file" {
+  type = string
+}
+
 # jsonファイルのパスをcredentialsに設定する
 provider "google" {
+  credentials = file(var.credentials_file)
   project     = var.project_id
   region      = var.region
 }

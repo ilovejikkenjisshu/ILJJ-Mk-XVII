@@ -73,6 +73,7 @@ jobs:
           echo "export TF_VAR_project_id=${{ vars.PROJECT_ID }}" >> $GITHUB_ENV
           echo "export TF_VAR_region=${{ vars.REGION }}" >> $GITHUB_ENV
           echo "export TF_VAR_client_public_key=${{ vars.CLIENT_PUBLIC_KEY }}" >> $GITHUB_ENV
+          echo "export TF_VAR_credentials_file=${CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE}" >> $GITHUB_ENV
       - name: Terraform Init
         run: terraform init
       - name: Validate Terraform
