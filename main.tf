@@ -50,15 +50,27 @@ resource "google_storage_bucket_object" "packages" {
   source = data.archive_file.function_archive.output_path
 }
 
-resource "google_cloudfunctions_function" "gssc_discord_bot" {
+resource "google_cloudfunctions2_function" "gssc_discord_bot" {
   name                  = "GSSC_Bot"
-  runtime               = "nodejs16"
+  location              = var.region
   description           = "Discord BOT for Game Server"
-  source_archive_bucket = var.bucket_name
-  source_archive_object = google_storage_bucket_object.packages.name
 
-  trigger_http = true
-  entry_point  = "discordRequest"
+  build_config {
+    runtime     = "nodejs16"
+    entry_point = "discordRequest"
+    source      = {
+      storage_source {
+        bucket = var.bucket_name
+        object = google_storage_bucket_object.packages.name
+      }
+    }
+  }
+
+  service_config {
+    max_instance_count  = 1
+    available_memory    = "128M"
+    timeout             = "60s"
+  }
 
   environment_variables = {
     BUCKET_NAME       = var.bucket_name
@@ -68,5 +80,5 @@ resource "google_cloudfunctions_function" "gssc_discord_bot" {
 }
 
 output "function_uri" {
-  value = google_cloudfunctions_function.gssc_discord_bot.https_trigger_url
+  value = google_cloudfunctions2_function.gssc_discord_bot.service_config[0].uri
 }
