@@ -28,19 +28,19 @@ variable "client_public_key" {
 }
 
 resource "google_cloudfunctions_function" "gssc_discord_bot" {
-  name        = "GSSC_Bot"
-  runtime     = "nodejs16"
-  description = "Discord BOT for Game Server"
+  name                  = "GSSC_Bot"
+  runtime               = "nodejs16"
+  description           = "Discord BOT for Game Server"
   source_archive_bucket = var.bucket_name
   source_archive_object = "iljj-gssc-src.zip"
 
   trigger_http = true
 
   environment_variables = {
-    BUCKET_NAME = var.bucket_name
-    DISCORD_TOKEN = var.discord_token
-    PROJECT_ID = var.project_id
-    REGION = var.region
+    BUCKET_NAME       = var.bucket_name
+    DISCORD_TOKEN     = var.discord_token
+    PROJECT_ID        = var.project_id
+    REGION            = var.region
     CLIENT_PUBLIC_KEY = var.client_public_key
   }
 }
