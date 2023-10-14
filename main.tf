@@ -34,26 +34,27 @@ provider "google" {
   region      = var.region
 }
 
-# Cloud Functionsにアップロードするファイルをzipに固める。
-data "archive_file" "function_archive" {
-  type        = "zip"
-  source_dir  = "./src"
-  output_path = "./iljj-gssc-src.zip"
-}
-
-# zipファイルをアップロードするためのbucketを作成
-resource "google_storage_bucket" "bucket" {
-  name          = var.bucket_name
-  location      = var.region
-  storage_class = "STANDARD"
-}
-
-# zipファイルをアップロードする
-resource "google_storage_bucket_object" "packages" {
-  name   = "iljj-gssc-src.zip"
-  bucket = google_storage_bucket.bucket.name
-  source = data.archive_file.function_archive.output_path
-}
+# NOTE: 今回はgithub actionsでzipを作成してアップロードするので不要
+# # Cloud Functionsにアップロードするファイルをzipに固める。
+# data "archive_file" "function_archive" {
+#   type        = "zip"
+#   source_dir  = "./src"
+#   output_path = "./iljj-gssc-src.zip"
+# }
+#
+# # zipファイルをアップロードするためのbucketを作成
+# resource "google_storage_bucket" "bucket" {
+#   name          = var.bucket_name
+#   location      = var.region
+#   storage_class = "STANDARD"
+# }
+#
+# # zipファイルをアップロードする
+# resource "google_storage_bucket_object" "packages" {
+#   name   = "iljj-gssc-src.zip"
+#   bucket = google_storage_bucket.bucket.name
+#   source = data.archive_file.function_archive.output_path
+# }
 
 resource "google_cloudfunctions_function" "gssc_discord_bot" {
   name                  = "GSSC_Bot"
