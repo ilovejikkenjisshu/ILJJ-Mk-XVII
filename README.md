@@ -8,29 +8,31 @@
 
 `command`には実行されるコマンドを記述します。
 
-| `command` | 実行される内容     |
-| :-------: | :----------------: |
-| `start`   | サーバーを起動     |
-| `stop`    | サーバーを終了     |
-| `restart` | サーバーを再起動   |
-| `status`  | サーバーの状態     |
-| `list`    | サーバーの一覧表示 |
+| `command` | 実行される内容     | 例                      |
+| :-:       | :-:                | :-:                     |
+| `start`   | サーバーを起動     | `/gssc start valheim`   |
+| `stop`    | サーバーを終了     | `/gssc stop valheim`    |
+| `restart` | サーバーを再起動   | `/gssc restart valheim` |
+| `status`  | サーバーの状態     | `/gssc status valheim`  |
+| `list`    | サーバーの一覧表示 | `/gssc list`            |
 
 `game`には起動するゲームサーバーのaliasを記述します。
 
 ## Game Server Settings
 
-以下のようなjson形式で記述し、`game_servers.json`としてGCPの`gssc`バケットに配置します。
+以下のようなjson形式で記述し、`game_servers.json`としてGCP上の`BUCKEt_NAME`バケットに配置します。
 
 ```json:game_servers.json
 {
   "valheim": {
     "name": "Valheim",
     "instance_name": "gcp insrance name",
+    "zone": "asia-northeast1-b"
   },
   "minecraft-vanila": {
     "name": "Minecraft Vanila",
     "instance_name": "gcp insrance name",
+    "zone": "asia-northeast1-b"
   }
 }
 ```
@@ -39,7 +41,7 @@
 
 ### 1. Create Discord Application
 
-Using [https://discord.com/developers/applications]
+Using [discord developers](https://discord.com/developers/applications).
 
 ### 2. GCP Settings
 
@@ -68,14 +70,14 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${POOL_ID}/subject/attribute.repository/${GITHUB_REPOSITORY}"
 ```
 
-コマンドでうまく行かない場合、 [https://zenn.dev/kou_pg_0131/articles/gh-actions-oidc-gcp](GitHub Actions で OIDC を使用して GCP 認証を行う) を見て、ポチポチしてください。
+コマンドでうまく行かない場合、 [GitHub Actions で OIDC を使用して GCP 認証を行う](https://zenn.dev/kou_pg_0131/articles/gh-actions-oidc-gcp) を見て、ポチポチしてください。
 
 ### 3. Github Actinos Settings
 
 #### Variables
 
 | Name                    | Value                     |
-| :---------------------: | :-----------------------: |
+| :-:                     | :-:                       |
 | `PROJECT_ID`            | GCP Project Number        |
 | `POOL_ID`               | GCP Pool ID               |
 | `PROVIDER_ID`           | GCP Provider ID           |
@@ -87,13 +89,14 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 #### Secrets
 
-| Name                | Value                  |
-| :-----------------: | :--------------------: |
-| `DISCORD_TOKEN`     | Discord Bot Token      |
-| `DISCORD_GUILD`     | Discord Guild ID       |
+| Name            | Value             |
+| :-:             | :-:               |
+| `DISCORD_TOKEN` | Discord Bot Token |
+| `DISCORD_GUILD` | Discord Guild ID  |
 
 ## 参考情報
 
 - [https://blog.g-gen.co.jp/entry/using-terraform-via-github-actions]
 - [https://zenn.dev/sway/articles/terraform_biginner_varliable]
 - [https://zenn.dev/hiroga/articles/discord-bot-by-gcp-terraform-circleci]
+- [https://sterfield.co.jp/blog/17682/]
