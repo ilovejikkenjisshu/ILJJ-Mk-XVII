@@ -11,10 +11,6 @@ variable "bucket_name" {
   type = string
 }
 
-variable "discord_token" {
-  type = string
-}
-
 variable "project_id" {
   type = string
 }
@@ -27,6 +23,33 @@ variable "client_public_key" {
   type = string
 }
 
+# jsonファイルのパスをcredentialsに設定する
+provider "google" {
+  project     = var.project_id
+  region      = var.region
+}
+
+# Cloud Functionsにアップロードするファイルをzipに固める。
+data "archive_file" "function_archive" {
+  type        = "zip"
+  source_dir  = "./src"
+  output_path = "./iljj-gssc-src.zip"
+}
+
+# zipファイルをアップロードするためのbucketを作成
+resource "google_storage_bucket" "bucket" {
+  name          = var.bucket_name
+  location      = var.region
+  storage_class = "STANDARD"
+}
+
+# zipファイルをアップロードする
+resource "google_storage_bucket_object" "packages" {
+  name   = "iljj-gssc-src.zip"
+  bucket = google_storage_bucket.bucket.name
+  source = data.archive_file.function_archive.output_path
+}
+
 resource "google_cloudfunctions_function" "gssc_discord_bot" {
   name                  = "GSSC_Bot"
   runtime               = "nodejs16"
@@ -35,12 +58,11 @@ resource "google_cloudfunctions_function" "gssc_discord_bot" {
   source_archive_object = "iljj-gssc-src.zip"
 
   trigger_http = true
+  entry_point  = "discordRequest"
 
   environment_variables = {
     BUCKET_NAME       = var.bucket_name
-    DISCORD_TOKEN     = var.discord_token
     PROJECT_ID        = var.project_id
-    REGION            = var.region
     CLIENT_PUBLIC_KEY = var.client_public_key
   }
 }
