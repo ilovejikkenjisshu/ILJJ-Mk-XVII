@@ -36,34 +36,26 @@ provider "google" {
   region      = var.region
 }
 
-# NOTE: 今回はgithub actionsでzipを作成してアップロードするので不要
-# # Cloud Functionsにアップロードするファイルをzipに固める。
-# data "archive_file" "function_archive" {
-#   type        = "zip"
-#   source_dir  = "./src"
-#   output_path = "./iljj-gssc-src.zip"
-# }
-#
-# # zipファイルをアップロードするためのbucketを作成
-# resource "google_storage_bucket" "bucket" {
-#   name          = var.bucket_name
-#   location      = var.region
-#   storage_class = "STANDARD"
-# }
-#
-# # zipファイルをアップロードする
-# resource "google_storage_bucket_object" "packages" {
-#   name   = "iljj-gssc-src.zip"
-#   bucket = google_storage_bucket.bucket.name
-#   source = data.archive_file.function_archive.output_path
-# }
+# Cloud Functionsにアップロードするファイルをzipに固める。
+data "archive_file" "function_archive" {
+  type        = "zip"
+  source_dir  = "./src"
+  output_path = "./iljj-gssc-src.zip"
+}
+
+# zipファイルをアップロードする
+resource "google_storage_bucket_object" "packages" {
+  name   = "iljj-gssc-src.zip"
+  bucket = var.bucket_name
+  source = data.archive_file.function_archive.output_path
+}
 
 resource "google_cloudfunctions_function" "gssc_discord_bot" {
   name                  = "GSSC_Bot"
   runtime               = "nodejs16"
   description           = "Discord BOT for Game Server"
   source_archive_bucket = var.bucket_name
-  source_archive_object = "iljj-gssc-src.zip"
+  source_archive_object = google_storage_bucket_object.packages.name
 
   trigger_http = true
   entry_point  = "discordRequest"
