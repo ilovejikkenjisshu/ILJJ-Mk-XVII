@@ -81,10 +81,5 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan
-      - name: plan output
-        run: |-
-          echo ${{ steps.plan.outputs.stdout }}
-          echo ${{ steps.plan.outputs.stderr }}
-          echo ${{ steps.plan.outputs.exitcode }}
       - name: Terraform Apply
         run: terraform apply -auto-approve
