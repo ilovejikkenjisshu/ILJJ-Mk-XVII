@@ -11,8 +11,22 @@ defaults:
     working-directory: ./
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      initial-command: ${{ steps.filter.outputs.initial-command }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            initial-command:
+              - 'initial/**'
   initial-command:
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.initial-command == 'true' }}
     defaults:
       run:
         working-directory: initial
@@ -42,13 +56,6 @@ jobs:
           workload_identity_provider: 'projects/${{ vars.PROJECT_ID }}/locations/global/workloadIdentityPools/${{ vars.POOL_ID }}/providers/${{ vars.PROVIDER_ID }}'
           service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
       - uses: hashicorp/setup-terraform@v2
-      - name: Set terraform valiables
-        run: |-
-          echo "export TF_VAR_bucket_name=${{ vars.BUCKET_NAME }}" >> $GITHUB_ENV
-          echo "export TF_VAR_discord_token=${{ secrets.DISCORD_TOKEN }}" >> $GITHUB_ENV
-          echo "export TF_VAR_project_id=${{ vars.PROJECT_ID }}" >> $GITHUB_ENV
-          echo "export TF_VAR_region=${{ vars.REGION }}" >> $GITHUB_ENV
-          echo "export TF_VAR_client_public_key=${{ vars.CLIENT_PUBLIC_KEY }}" >> $GITHUB_ENV
       - name: Zip gssc source
         uses: montudor/action-zip@v1.0.0
         with:
@@ -60,9 +67,24 @@ jobs:
           path: 'iljj-gssc-src.zip'
           parent: false
           process_gcloudignore: false
+      - name: Set terraform valiables
+        run: |-
+          echo "export TF_VAR_bucket_name=${{ vars.BUCKET_NAME }}" >> $GITHUB_ENV
+          echo "export TF_VAR_discord_token=${{ secrets.DISCORD_TOKEN }}" >> $GITHUB_ENV
+          echo "export TF_VAR_project_id=${{ vars.PROJECT_ID }}" >> $GITHUB_ENV
+          echo "export TF_VAR_region=${{ vars.REGION }}" >> $GITHUB_ENV
+          echo "export TF_VAR_client_public_key=${{ vars.CLIENT_PUBLIC_KEY }}" >> $GITHUB_ENV
       - name: Terraform Init
         run: terraform init
       - name: Validate Terraform
         run: terraform validate
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan
+      - name: plan output
+        run: |-
+          echo ${{ steps.plan.outputs.stdout }}
+          echo ${{ steps.plan.outputs.stderr }}
+          echo ${{ steps.plan.outputs.exitcode }}
       - name: Terraform Apply
         run: terraform apply -auto-approve
