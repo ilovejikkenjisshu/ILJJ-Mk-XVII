@@ -68,15 +68,15 @@ resource "google_cloudfunctions2_function" "gssc_discord_bot" {
 
   service_config {
     max_instance_count = 1
-    available_memory   = "128M"
-    timeout            = "60s"
+    available_memory   = "256M"
+    timeout_seconds    = 60
+    environment_variables = {
+      BUCKET_NAME       = var.bucket_name
+      PROJECT_ID        = var.project_id
+      CLIENT_PUBLIC_KEY = var.client_public_key
+    }
   }
 
-  environment_variables = {
-    BUCKET_NAME       = var.bucket_name
-    PROJECT_ID        = var.project_id
-    CLIENT_PUBLIC_KEY = var.client_public_key
-  }
 }
 
 output "function_uri" {
