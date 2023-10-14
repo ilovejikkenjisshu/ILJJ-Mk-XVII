@@ -9,9 +9,10 @@ const functions = require("@google-cloud/functions-framework");
 
 const compute = google.compute("v1");
 const storage = new Storage();
+const auth = new google.auth.GoogleAuth();
 
-// クラウドファンクションの環境変数からトークンを取得
-const { BUCKET_NAME, DISCORD_TOKEN, PROJECT_ID, REGION, CLIENT_PUBLIC_KEY } = process.env;
+// 環境変数からトークンを取得
+const { BUCKET_NAME, PROJECT_ID, CLIENT_PUBLIC_KEY } = process.env;
 
 // ゲームサーバーの設定ファイルを取得
 const readGameServersJson = async () => {
@@ -45,18 +46,19 @@ const gsscCommand = async (game, command) => {
   }
 }
 
-const getInstanceConfig = (instance_name) => {
+const getInstanceConfig = (instance_name, zone) => {
   return {
+    auth: auth,
     project: PROJECT_ID,
-    zone: REGION,
+    zone: zone,
     instance: instance_name,
   };
 };
 
 const startGameServer = async (gameServer) => {
-  const { instance_name, name } = gameServer;
+  const { instance_name, name, zone } = gameServer;
   try {
-    await compute.instances.start(getInstanceConfig(instance_name));
+    await compute.instances.start(getInstanceConfig(instance_name, zone));
     return `Start ${name} server`;
   } catch (err) {
     console.error("ERROR:", err);
@@ -65,9 +67,9 @@ const startGameServer = async (gameServer) => {
 };
 
 const stopGameServer = async (gameServer) => {
-  const { instance_name, name } = gameServer;
+  const { instance_name, name, zone } = gameServer;
   try {
-    await compute.instances.stop(getInstanceConfig(instance_name));
+    await compute.instances.stop(getInstanceConfig(instance_name, zone));
     return `Stop ${name} server`;
   } catch (err) {
     console.error("ERROR:", err);
@@ -76,9 +78,9 @@ const stopGameServer = async (gameServer) => {
 };
 
 const restartGameServer = async (gameServer) => {
-  const { instance_name, name } = gameServer;
+  const { instance_name, name, zone } = gameServer;
   try {
-    const instance_config = getInstanceConfig(instance_name);
+    const instance_config = getInstanceConfig(instance_name, zone);
     await compute.instances.stop(instance_config);
     await compute.instances.start(instance_config);
     return `Restart ${name} server`;
@@ -89,9 +91,9 @@ const restartGameServer = async (gameServer) => {
 };
 
 const statusGameServer = async (gameServer) => {
-  const { instance_name, name } = gameServer;
+  const { instance_name, name, zone } = gameServer;
   try {
-    const response = await compute.instances.get(getInstanceConfig(instance_name));
+    const response = await compute.instances.get(getInstanceConfig(instance_name, zone));
     return `${name}: ${response.data.status}`;
   } catch (err) {
     console.error("ERROR:", err);
@@ -101,25 +103,36 @@ const statusGameServer = async (gameServer) => {
 
 const discordRequest = async (req, res) => {
   // Verify the request
+  const signature = req.get("X-Signature-Ed25519");
+  const timestamp = req.get("X-Signature-Timestamp");
   const isValidRequest = await verifyKey(
     req.rawBody,
-    req.get("X-Signature-Ed25519");,
-    req.get("X-Signature-Timestamp");,
+    signature,
+    timestamp,
     CLIENT_PUBLIC_KEY,
   );
-  if (!isValidRequest) return res.status(401).send("Bad request signature");
+  if (!isValidRequest) {
+    return res.status(401).end("invalid request signature");
+  }
 
-  const interactoin = req.body;
+  const interaction = req.body;
   let responce_body;
   if (interaction && interaction.type === InteractionType.APPLICATION_COMMAND) {
-    const { commandName, options } = interaction.data;
-    const command = options.getString("command");
-    const game = options.getString("game");
+    const { options } = interaction.data;
+    console.debug(`options: ${Object.keys(options)}`)
+    let command, game;
+    for (let option of options) {
+      if (option.name === 'command') {
+        command = option.value;
+      } else if (option.name === 'game') {
+        game = option.value;
+      }
+    }
     let response;
     if (command === "list") {
       const gameServers = await readGameServersJson();
       const gameServerNames = Object.keys(gameServers);
-      response = gameServerNames.join("\n");
+      response = "## list of game\n - " + gameServerNames.join("\n - ");
     } else {
       response = await gsscCommand(game, command);
     }
@@ -130,12 +143,7 @@ const discordRequest = async (req, res) => {
   } else {
     responce_body = { type: InteractionResponseType.PONG }
   }
-  res.status(200).send({
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(responce_body),
-  });
+  res.send(responce_body);
 };
 
 functions.http("discordRequest", discordRequest);
