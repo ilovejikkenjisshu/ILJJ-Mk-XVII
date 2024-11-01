@@ -20,7 +20,7 @@
 
 ## Game Server Settings
 
-以下のようなjson形式で記述し、`game_servers.json`としてGCP上の`BUCKEt_NAME`バケットに配置します。
+以下のようなjson形式で記述し、`game_servers.json`としてGCP上の`BUCKET_NAME`バケットに配置します。
 
 ```json:game_servers.json
 {
@@ -43,60 +43,68 @@
 
 Using [discord developers](https://discord.com/developers/applications).
 
-### 2. GCP Settings
+### 2. GCPの認証情報を配置
 
-```bash
-REGION=asia-northeast1
-BUCKET_NAME=your-bucket-name
-POOL_ID=your-pool-id
-PROVIDER_ID=your-provider-id
-gcloud init
-gsutil mb -b on -c standard -l ${REGION} gs://${BUCKET_NAME}
-gcloud services enable iamcredentials.googleapis.com
-gcloud iam service-accounts create terraform --display-name="terraform"
-# Service Accountに必要な権限を付与: Storage Object Admin, Cloud Functions Admin
-SERVICE_ACCOUNT_EMAIL=your-service-account-email
-GITHUB_REPOSITORY="github-user-name/github-repository-name"
-PROJECT_NUMBER=$(gcloud projects list --format="table(projectNumber,projectId)" | grep $(gcloud config get-value project) | cut -d ' ' -f1)
-gcloud iam workload-identity-pools create ${POOL_ID} --loation="global" --description="gssc-pool"
-gcloud iam workload-identity-pools providers create-oidc ${PROVIDER_ID} \
-  --location="global" \
-  --workload-identity-pool=${POOL_ID} \
-  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.actor=assertion.actor" \
-  --issuer-uri="https://token.actions.githubusercontent.com"
-gcloud iam service-accounts add-iam-policy-binding \
-  "${SERVICE_ACCOUNT_EMAIL}" \
-  --role="roles/iam.workloadIdentityUser" \
-  --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${POOL_ID}/subject/attribute.repository/${GITHUB_REPOSITORY}"
+ホームディレクトリ直下にゲームサーバーを配置予定のGCPプロジェクトから取得した、`google-key.json`を配置してください。
+中身はサービスアカウントの認証情報です。
+必要に応じてGCPの該当プロジェクト上でサービスアカウントを作成し、Compute Engineの「起動/停止/状態取得」の権限とCloud Storageの「buckt閲覧」権限を付与してください。
+
+### 3. .env, config.jsonの修正
+
+.envファイル内に必要な情報を埋めてください。
+```.env
+CLIENT_TOKEN=ディスコードのトークン
+BUCKET_NAME=game_servers.jsonを配置したバケット名
+PROJECT_ID=GCPのプロジェクト名
 ```
 
-コマンドでうまく行かない場合、 [GitHub Actions で OIDC を使用して GCP 認証を行う](https://zenn.dev/kou_pg_0131/articles/gh-actions-oidc-gcp) を見て、ポチポチしてください。
+config.json の中身を自身のBOTとサーバに合わせて修正してください。
+```json
+{
+	"token": "ディスコードのBOT TOKEN",
+	"clientId": "アプリケーションID",
+	"guildId": "ディスコードのサーバID"
+}
+```
 
-### 3. Github Actinos Settings
+### 3. BOTの登録
 
-#### Variables
+```bash
+cd src
+npm i
+node deploy-commands.js
+```
 
-| Name                    | Value                     |
-| :-:                     | :-:                       |
-| `PROJECT_ID`            | GCP Project Number        |
-| `POOL_ID`               | GCP Pool ID               |
-| `PROVIDER_ID`           | GCP Provider ID           |
-| `SERVICE_ACCOUNT_EMAIL` | GCP Service Account Email |
-| `REGION`                | GCP Region                |
-| `BUCKET_NAME`           | GCP Bucket Name           |
-| `DISCORD_BOT_ID`        | Discord Bot ID            |
-| `CLIENT_PUBLIC_KEY`     | Discord Bot Public Key    |
+### 4. サーバーの起動
 
-#### Secrets
+次のコマンドを実行すると、BOTが起動します。
+```bash
+npm run prod
+```
+また、`start.sh`を実行してもBOTが起動します。
+必要であれば、`start.sh`を`systemd`などで起動してください。
+```service
+[Unit]
+Description=Node.js Service
+After=network-online.target
+Requires=network-online.target
 
-| Name            | Value             |
-| :-:             | :-:               |
-| `DISCORD_TOKEN` | Discord Bot Token |
-| `DISCORD_GUILD` | Discord Guild ID  |
+[Service]
+Type=simple
+User=実行者のユーザー名
+WorkingDirectory=srcディレクトリの絶対パス
+ExecStart=start.shの絶対パス
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## 参考情報
 
-- [https://blog.g-gen.co.jp/entry/using-terraform-via-github-actions]
-- [https://zenn.dev/sway/articles/terraform_biginner_varliable]
-- [https://zenn.dev/hiroga/articles/discord-bot-by-gcp-terraform-circleci]
-- [https://sterfield.co.jp/blog/17682/]
+- https://blog.g-gen.co.jp/entry/using-terraform-via-github-actions
+- https://zenn.dev/sway/articles/terraform_biginner_varliable
+- https://zenn.dev/hiroga/articles/discord-bot-by-gcp-terraform-circleci
+- https://sterfield.co.jp/blog/17682/

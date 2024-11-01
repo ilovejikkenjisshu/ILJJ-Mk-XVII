@@ -1,17 +1,19 @@
 {
-  "name": "iljj-gssc-src",
+  "name": "gssc",
   "version": "1.0.0",
-  "description": "",
+  "description": "gssc",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prod": "node ."
   },
-  "author": "Hansyo",
+  "author": "",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/functions-framework": "^3.3.0",
-    "@google-cloud/storage": "^7.3.0",
-    "discord-interactions": "^3.4.0",
-    "googleapis": "^127.0.0"
+    "@google-cloud/storage": "^7.12.1",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "google-auth-library": "^9.13.0",
+    "googleapis": "^140.0.1"
   }
 }
